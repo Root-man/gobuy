@@ -1,30 +1,18 @@
 package config
 
-import (
-	"errors"
-
-	"github.com/gookit/config/v2"
-	"github.com/gookit/config/v2/yaml"
-)
+import "github.com/spf13/viper"
 
 type BotConfig struct {
-	BotToken string
+	token string
 }
 
-func LoadConfig() (BotConfig, error) {
-	config.WithOptions(config.ParseEnv)
-	config.AddDriver(yaml.Driver)
-	err := config.LoadFiles("config/config.yaml")
-	if err != nil {
-		panic(err)
-	}
+func (bc *BotConfig) GetToken() string {
+	return bc.token
+}
 
-	switch v := config.Data()["botToken"].(type) {
-	case string:
-		return BotConfig{BotToken: v}, nil
-	default:
-		return BotConfig{}, errors.New("invalid bot token in config")
-	}
+func Load() (*BotConfig, error) {
+	viper.SetEnvPrefix("GOBUY")
+	viper.AutomaticEnv()
 
-	// fmt.Printf("config data: \n %#v\n", config.Data())
+	return &BotConfig{token: viper.GetString("TOKEN")}, nil
 }
